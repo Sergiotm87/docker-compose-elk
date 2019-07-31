@@ -8,6 +8,21 @@
 ## Basic usage
 Run docker compose:
 ```
-$ docker-compose up
+$ docker stack deploy --compose-file=docker-compose.yml elk
 
+```
+
+## Export dashboard:
+```
+curl -XGET localhost:5601/api/kibana/dashboards/export?dashboard=[dashboard_uuid] > my-dashboards.json
+```
+
+## Import dashboard:
+```
+curl -XPOST localhost:5601/api/kibana/dashboards/import -H 'kbn-xsrf:true' -H 'Content-type:application/json' -d @my-dashboards.json
+```
+
+## Kibana url
+```
+0.0.0.0.5601
 ```

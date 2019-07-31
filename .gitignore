@@ -1,2 +1,4 @@
-logstash/logs/
-!logstash/logs/.placeholder
+logstash/logs/apache2/
+logstash/logs/syslog/
+!logstash/logs/syslog/.placeholder
+!logstash/logs/apache2/.placeholder

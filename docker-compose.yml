@@ -1,11 +1,16 @@
-version: "2"
+version: "3"
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 4096M
     environment:
       - discovery.type=single-node
       - cluster.name=docker-cluster
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
     volumes:
       - elasticdata:/usr/share/elasticsearch/data
     ports:
@@ -15,33 +20,42 @@ services:
       - elknetwork
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.2.2
+    image: docker.elastic.co/kibana/kibana:6.5.4
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 4096M
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200          
     volumes:
       - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - "5601:5601"
-    links:
-      - elasticsearch
     depends_on:
       - elasticsearch
     networks:
       - elknetwork
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:6.2.2
+    image: docker.elastic.co/logstash/logstash:6.5.4
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 4096M
     volumes:
       - ./logstash/pipeline/:/usr/share/logstash/pipeline/
-      - ./logstash/logs/apache:/var/tmp/logs/apache
+      - ./logstash/logs/apache2:/var/tmp/logs/apache2
       - ./logstash/logs/syslog:/var/tmp/logs/syslog
-    links:
-      - elasticsearch
+      - ./logstash/patterns.d:/etc/logstash/patterns.d
     depends_on:
       - elasticsearch
     ports:
       - "9600:9600"
       - "5000:5000"
     networks:
-          - elknetwork
+      - elknetwork
 
 volumes:
   elasticdata:
